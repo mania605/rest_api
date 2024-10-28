@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 class Post(models.Model):
   CATEGORY =(('STUDY','Study'),('DIARY','Diary'),('COMMON','Common'))
@@ -13,3 +14,25 @@ category = models.CharField(max_length=10, choices= CATEGORY, default='COMMON')
 created= models.DateTimeField(auto_now_add=True)
 updated= models.DateTimeField(auto_now=True)
 
+#post 클래스에서 생성되는 인스턴스 모델의 타이틀 값을 문자열로 변환
+def __str__(self):
+  return self.title
+
+
+#해당 클래스가 생성하는 모델 인스턴스로 저장해주는함수
+def save(self, *args, **kwargs):
+#모델 인스턴스 생성시 slug항목이 없으면 제목값을 슬러그화해서 대신 저장
+  if not self.slug:
+    slug_base = slugify(self.title)
+
+
+#이미 DB상의 같은 항목의 slug게시글이 존재하면
+#기존 slug이름에 랜덤한 5글자의 고유 문자값을 적용하여 slug중복 피함
+
+if post.objects.filter(slug=slug).exists():
+  slug =f'{slug_base}-{get_ramdom_string(5)}'
+  #위의 조건문으로 중복회피한 새로운 슬러그를 인스턴스에 적용
+  self.slug = slugify
+
+  #부모 클래스의 save함수를 super를 이용하여 위의 적용내용들을 반환해서 호출 및 저장
+  super(Post, self).save(*args, **kwargs)
